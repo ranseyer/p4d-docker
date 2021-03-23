@@ -1,7 +1,7 @@
 FROM debian:buster-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git                   \
+        git wget              \
         apt-transport-https   \
         ca-certificates       \
         cmake                 \
@@ -38,16 +38,10 @@ RUN cd /root && git clone https://github.com/warmcat/libwebsockets && cd libwebs
 ARG localUser=p4d
 ARG workdir=/home/$localUser/repo
 
-RUN cd /root && git clone https://github.com/horchi/linux-p4d/ \
-    && cd linux-p4d \
-    && echo "73c73"                       > Make.patch \
-    && echo -e "< \tmake install-systemd" >> Make.patch \
-    && echo "---"                          >> Make.patch \
-    && echo -e "> \t#make install-systemd">> Make.patch \
-    && echo #### \
-    && cat Make.patch \
-    && echo ####\
-    && patch -p1 Makefile <Make.patch \
+RUN git clone https://github.com/horchi/linux-p4d/ /root/linux-p4d/ \
+    && cd /root/linux-p4d/ \
+    && wget https://raw.githubusercontent.com/ranseyer/p4d-docker/main/Make.patch \
+    && patch -p1 /root/linux-p4d/Makefile <Make.patch \
     && make clean all \
     && make install \
     && useradd --create-home --shell /bin/bash $localUser \
@@ -74,7 +68,9 @@ RUN apt-get remove -y \
         uuid-dev              \
     && apt-get autoremove -y  \
     &&rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/man/?? /usr/share/man/??_* \
-    && rm -r /root/linux-p4d 
+    &&echo
+
+##    && rm -r /root/linux-p4d 
 
 
 #ENTRYPOINT ["/usr/local/bin/p4d"]
