@@ -1,0 +1,16 @@
+version: '3'
+services:
+  p4d:
+    image: p4d:002
+    devices:
+      #- "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_XX00XX01-if00-port0:/dev/p4d"
+    volumes:
+      #- /etc/timezone:/etc/timezone:ro
+      #- /etc/localtime:/etc/localtime:ro
+      - ./p4d:/etc/p4d/
+      - ./htdocs:/var/lib/p4/
+      - ./scripts:/usr/local/bin
+    ports:
+      - "1111:1111"
+    restart: always
+
